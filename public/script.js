@@ -13,6 +13,7 @@ const translations = {
     'signup-subtitle': 'انضم إلى مجتمع Bible.AI',
     'email-placeholder': 'your@email.com',
     'password-placeholder': '••••••••',
+    'password-lebel': 'كلمه المرور',
     'name-placeholder': 'John Doe',
     'login-btn': 'تسجيل الدخول',
     'signup-btn': 'إنشاء حساب',
@@ -56,6 +57,10 @@ const translations = {
     'back': 'العودة',
     'save-changes': 'حفظ التغييرات',
     'account-settings': 'إعدادات الحساب',
+    'quick-notes': 'ملاحظات سريعة',
+    'save': 'حفظ',
+    'filter-all': 'الكل',
+    'filter-book': 'مرتبطة بسفر',
     'full-name': 'الاسم الكامل',
     'email': 'البريد الإلكتروني',
     'phone': 'رقم الهاتف (اختياري)',
@@ -98,11 +103,19 @@ const translations = {
     'quick-notes': 'ملاحظات سريعة',
     'clear': 'مسح',
     'note-saved': 'تم حفظ الملاحظة',
+    'note-create-placeholder': 'اضغط هنا عشان تكتب ملاحظاتك',
+    'note-title': 'العنوان',
+    'note-content': 'اكتب ملاحظتك...',
+    'my-notes': 'ملاحظاتي',
+    'no-notes': 'لا توجد ملاحظات بعد',
+    'confirm-delete': 'هل تريد حذف هذه الملاحظة؟',
+    'note-deleted': 'تم الحذف',
     'note-empty': 'الملاحظة فارغة'
   },
   en: {
     // --- Original Translations ---
     'app-name': 'Bible.AI',
+    'password-label': 'Password',
     'app-subtitle': 'Interactive Holy Bible',
     'login-title': 'Login',
     'login-subtitle': 'Welcome back to Bible.AI',
@@ -167,6 +180,13 @@ const translations = {
     'pref-dark-mode': 'Dark Mode',
     'pref-emails': 'Email Notifications',
     'error-fallback': 'Sorry, the server is currently unavailable. Please try again later.',
+    'note-create-placeholder': 'Click here to write your notes',
+    'note-title': 'Title',
+    'note-content': 'Write your note...',
+    'my-notes': 'My Notes',
+    'no-notes': 'No notes yet',
+    'confirm-delete': 'Delete this note?',
+    'note-deleted': 'Note deleted',
 
     // --- New Features Translations ---
     'notifications': 'Notifications',
@@ -195,6 +215,10 @@ const translations = {
     'quick-notes': 'Quick Notes',
     'clear': 'Clear',
     'note-saved': 'Note saved',
+    'quick-notes': 'Quick Notes',
+    'save': 'Save',
+    'filter-all': 'All',
+    'filter-book': 'Book Related',
     'note-empty': 'Note is empty'
   },
   ru: {
@@ -207,6 +231,7 @@ const translations = {
     'signup-subtitle': 'Присоединяйтесь к Bible.AI',
     'email-placeholder': 'your@email.com',
     'password-placeholder': '••••••••',
+    'password-label': 'Пароль',
     'name-placeholder': 'John Doe',
     'login-btn': 'Войти',
     'signup-btn': 'Зарегистрироваться',
@@ -265,6 +290,14 @@ const translations = {
     'pref-emails': 'Email уведомления',
     'error-fallback': 'Извините, сервер в настоящее время недоступен. Пожалуйста, попробуйте позже.',
 
+
+    'note-create-placeholder': 'Нажмите здесь, чтобы написать заметки',
+    'note-title': 'Заголовок',
+    'note-content': 'Напишите вашу заметку...',
+    'my-notes': 'Мои заметки',
+    'no-notes': 'Заметок пока нет',
+    'confirm-delete': 'Удалить эту заметку?',
+    'note-deleted': 'Заметка удалена',
     // --- New Features Translations ---
     'notifications': 'Уведомления',
     'mark-all-read': 'Отметить все как прочитанное',
@@ -292,7 +325,11 @@ const translations = {
     'quick-notes': 'Быстрые заметки',
     'clear': 'Очистить',
     'note-saved': 'Заметка сохранена',
-    'note-empty': 'Заметка пустая'
+    'note-empty': 'Заметка пустая',
+    'quick-notes': 'Быстрые заметки',
+    'save': 'Сохранить',
+    'filter-all': 'Все',
+    'filter-book': 'Связанные с книгой'
   }
 };
 
@@ -1676,8 +1713,7 @@ function loadSavedSession() {
     try {
       const parsedUser = JSON.parse(savedUser);
       currentUser = { ...parsedUser, token: savedToken };
-      document.getElementById('loginContainer').style.display = 'none';
-      document.getElementById('mainHeader').style.display = 'block';
+      // FIX: Don't show main header here, let splash screen handle it
       return true; // Session exists
     } catch(e) {
       console.error('Failed to parse saved user:', e);
@@ -2879,28 +2915,69 @@ if (!document.getElementById('notification-styles')) {
 
 
 // ===== QUICK NOTES FUNCTIONS =====
-function toggleNotePanel() {
-  const panel = document.getElementById('notePanel');
-  if (panel) {
-    if (panel.style.display === 'none' || !panel.style.display) {
-      panel.style.display = 'flex';
-      loadQuickNotes();
-    } else {
-      panel.style.display = 'none';
-    }
+// ===== QUICK NOTES FUNCTIONS =====// ===== GOOGLE KEEP STYLE NOTES FUNCTIONS =====
+let currentNoteColor = 'white';
+let currentNotesView = 'grid';
+let editingNoteId = null;
+
+function expandNoteBox() {
+  document.getElementById('noteCollapsed').style.display = 'none';
+  document.getElementById('noteExpanded').style.display = 'block';
+  document.getElementById('quickNoteInput').focus();
+}
+
+function collapseNoteBox() {
+  document.getElementById('noteCollapsed').style.display = 'flex';
+  document.getElementById('noteExpanded').style.display = 'none';
+  document.getElementById('noteTitle').value = '';
+  document.getElementById('quickNoteInput').value = '';
+  currentNoteColor = 'white';
+  editingNoteId = null;
+  
+  // Reset color buttons
+  document.querySelectorAll('.color-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.color === 'white') btn.classList.add('active');
+  });
+}
+
+function setNoteColor(color) {
+  currentNoteColor = color;
+  document.querySelectorAll('.color-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.color === color) btn.classList.add('active');
+  });
+}
+
+function setNotesView(view) {
+  currentNotesView = view;
+  const grid = document.getElementById('noteHistoryList');
+  const buttons = document.querySelectorAll('.view-btn');
+  
+  buttons.forEach(btn => btn.classList.remove('active'));
+  event.target.closest('.view-btn').classList.add('active');
+  
+  if (view === 'list') {
+    grid.classList.add('list-view');
+  } else {
+    grid.classList.remove('list-view');
   }
 }
 
 async function saveQuickNote() {
+  const title = document.getElementById('noteTitle').value.trim();
   const noteText = document.getElementById('quickNoteInput').value.trim();
+  
   if (!noteText) {
-    showNotification(currentLang === 'ar' ? 'الملاحظة فارغة' : 'Note is empty', 'error');
+    showNotification(translations[currentLang]['note-empty'] || 'Note is empty', 'error');
     return;
   }
   
   const note = {
-    id: Date.now().toString(),
+    id: editingNoteId || Date.now().toString(),
+    title: title,
     text: noteText,
+    color: currentNoteColor,
     userId: currentUser.email,
     bookId: currentBook ? currentBook.id : null,
     bookName: currentBook ? currentBook.name[currentLang] : null,
@@ -2918,26 +2995,27 @@ async function saveQuickNote() {
     });
     
     if (res.ok) {
-      showNotification(currentLang === 'ar' ? 'تم الحفظ' : 'Note saved', 'success');
-      document.getElementById('quickNoteInput').value = '';
+      showNotification(translations[currentLang]['note-saved'] || 'Note saved', 'success');
+      collapseNoteBox();
       loadQuickNotes();
     } else {
       throw new Error('Failed to save');
     }
   } catch (err) {
-    // Fallback to localStorage if server fails
+    // Fallback to localStorage
     const notes = JSON.parse(localStorage.getItem('quickNotes-' + currentUser.email) || '[]');
-    notes.unshift(note);
-    if (notes.length > 50) notes.pop(); // Keep last 50 notes
+    const index = notes.findIndex(n => n.id === note.id);
+    if (index >= 0) {
+      notes[index] = note;
+    } else {
+      notes.unshift(note);
+    }
+    if (notes.length > 50) notes.pop();
     localStorage.setItem('quickNotes-' + currentUser.email, JSON.stringify(notes));
-    showNotification(currentLang === 'ar' ? 'تم الحفظ محلياً' : 'Saved locally', 'success');
-    document.getElementById('quickNoteInput').value = '';
+    showNotification(translations[currentLang]['note-saved'] || 'Note saved', 'success');
+    collapseNoteBox();
     loadQuickNotes();
   }
-}
-
-function clearNote() {
-  document.getElementById('quickNoteInput').value = '';
 }
 
 async function loadQuickNotes() {
@@ -2948,108 +3026,93 @@ async function loadQuickNotes() {
     
     if (res.ok) {
       const data = await res.json();
-      displayNoteHistory(data.notes || []);
+      displayNotes(data.notes || []);
     } else {
       throw new Error('Failed to load');
     }
   } catch (err) {
-    // Fallback to localStorage
     const notes = JSON.parse(localStorage.getItem('quickNotes-' + currentUser.email) || '[]');
-    displayNoteHistory(notes);
+    displayNotes(notes);
   }
 }
 
-function displayNoteHistory(notes) {
+function displayNotes(notes) {
   const list = document.getElementById('noteHistoryList');
   if (!list) return;
   
   if (notes.length === 0) {
-    list.innerHTML = '<p style="text-align:center;color:var(--gray);font-size:0.9rem;">No notes yet</p>';
+    list.innerHTML = `
+      <div class="notes-empty">
+        <i class="fas fa-sticky-note"></i>
+        <p data-i18n="no-notes">${translations[currentLang]['no-notes'] || 'لا توجد ملاحظات بعد'}</p>
+      </div>
+    `;
     return;
   }
   
-  list.innerHTML = notes.slice(0, 10).map(note => `
-    <div class="note-history-item" onclick="loadNoteToEditor('${note.id}')">
-      <div>${note.text.substring(0, 80)}${note.text.length > 80 ? '...' : ''}</div>
-      ${note.bookName ? `<div style="font-size:0.75rem;color:var(--primary);margin-top:0.25rem;"><i class="fas fa-book"></i> ${note.bookName}</div>` : ''}
-      <div class="note-time">${formatNotificationTime(note.timestamp)}</div>
+  list.innerHTML = notes.map(note => `
+    <div class="note-card" data-color="${note.color || 'white'}" onclick="editNote('${note.id}')">
+      ${note.title ? `<div class="note-card-title">${note.title}</div>` : ''}
+      <div class="note-card-content">${note.text}</div>
+      <div class="note-card-footer">
+        <span>${formatNotificationTime(note.timestamp)}</span>
+        ${note.bookName ? `<span><i class="fas fa-book"></i> ${note.bookName}</span>` : ''}
+      </div>
+      <div class="note-card-actions">
+        <button class="note-action-btn delete" onclick="event.stopPropagation(); deleteNote('${note.id}')">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
     </div>
   `).join('');
 }
 
-function loadNoteToEditor(noteId) {
-  // Try server first
-  fetch('/get-note/' + noteId, {
-    headers: { 'Authorization': 'Bearer ' + currentUser.token }
-  })
-  .then(res => res.ok ? res.json() : Promise.reject())
-  .then(data => {
-    document.getElementById('quickNoteInput').value = data.note.text;
-  })
-  .catch(() => {
+function editNote(noteId) {
+  // Get note from storage
+  const notes = JSON.parse(localStorage.getItem('quickNotes-' + currentUser.email) || '[]');
+  const note = notes.find(n => n.id === noteId);
+  
+  if (note) {
+    editingNoteId = noteId;
+    document.getElementById('noteTitle').value = note.title || '';
+    document.getElementById('quickNoteInput').value = note.text;
+    currentNoteColor = note.color || 'white';
+    
+    // Update color selection
+    document.querySelectorAll('.color-btn').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.dataset.color === currentNoteColor) btn.classList.add('active');
+    });
+    
+    expandNoteBox();
+  }
+}
+
+async function deleteNote(noteId) {
+  if (!confirm(translations[currentLang]['confirm-delete'] || 'Delete this note?')) return;
+  
+  try {
+    const res = await fetch('/delete-note/' + noteId, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + currentUser.token }
+    });
+    
+    if (res.ok) {
+      showNotification(translations[currentLang]['note-deleted'] || 'Note deleted', 'success');
+      loadQuickNotes();
+    } else {
+      throw new Error('Failed to delete');
+    }
+  } catch (err) {
     // Fallback to localStorage
     const notes = JSON.parse(localStorage.getItem('quickNotes-' + currentUser.email) || '[]');
-    const note = notes.find(n => n.id === noteId);
-    if (note) {
-      document.getElementById('quickNoteInput').value = note.text;
-    }
-  });
-}
-
-
-let currentNoteColor = 'white';
-
-function setNoteColor(color) {
-  currentNoteColor = color;
-  // Update visual selection
-  document.querySelectorAll('.color-opt').forEach(opt => {
-    opt.classList.remove('active');
-    if(opt.getAttribute('onclick').includes(color)) opt.classList.add('active');
-  });
-  // Change input background slightly to reflect choice
-  const inputContainer = document.querySelector('.note-input-container');
-  if(inputContainer) {
-    const colors = {
-      'white': '#fff', 'yellow': '#fffbeb', 'blue': '#eff6ff', 
-      'green': '#ecfdf5', 'pink': '#fff1f2'
-    };
-    inputContainer.style.backgroundColor = colors[color];
+    const filtered = notes.filter(n => n.id !== noteId);
+    localStorage.setItem('quickNotes-' + currentUser.email, JSON.stringify(filtered));
+    showNotification(translations[currentLang]['note-deleted'] || 'Note deleted', 'success');
+    loadQuickNotes();
   }
 }
 
-// 2. Note View Toggle (Grid/List)
-function toggleNoteView() {
-  const list = document.getElementById('noteHistoryList');
-  if(list.classList.contains('grid-view')) {
-    list.classList.replace('grid-view', 'list-view');
-  } else {
-    list.classList.replace('list-view', 'grid-view');
-  }
-}
-
-// 3. Filter Notes (Stub)
-function filterNotes(type) {
-  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-  // Add logic to filter noteHistoryList based on 'type'
-  // For now, this just updates the UI tab
-}
-
-// 4. Journal Mood Picker
-let currentMood = '';
-function setMood(mood) {
-  currentMood = mood;
-  document.querySelectorAll('.moods span').forEach(s => s.classList.remove('selected'));
-  event.target.classList.add('selected');
-}
-
-function initJournalDate() {
-  const dateDisplay = document.getElementById('journalDateDisplay');
-  if(dateDisplay) {
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    dateDisplay.textContent = new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-US', options);
-  }
-}
 
 console.log('✅ Bible.AI Application Loaded (v1.4.8)');
 console.log('📚 Total Books:', bibleBooks.length);
