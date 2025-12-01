@@ -10,7 +10,7 @@ var os = require('os');
 const { connectDB, User, Log, Notification, EmailLog, Note, Journal, BookStats } = require('./models');
 
 var PORT = process.env.PORT || 3000;
-var API_KEY = process.env.OPENROUTER_API_KEY || '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';
+var API_KEY = process.env.OPENROUTER_API_KEY || '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';
 //MONGODB_URI="mongodb+srv://yusufkaram:Church@bibleai.pewfze2.mongodb.net/bibleai?appName=bibleai" OPENROUTER_API_KEY="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" npm start
 
 if (!API_KEY) {
@@ -964,4 +964,5 @@ process.on('SIGINT', function() {
   });
 
 });
+
 
