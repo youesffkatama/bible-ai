@@ -680,47 +680,6 @@
       <button class="btn-primary" onclick="closeVerseOfDay()" data-i18n="close">إغلاق</button>
     </div>
   </div>
-  <div id="notePanel" class="note-panel" style="display:none;">
-    <div class="note-panel-header">
-      <div class="header-top">
-        <h3><i class="fas fa-sticky-note"></i> <span>ملاحظات سريعة</span></h3>
-        <div class="header-controls">
-          <button class="icon-btn" onclick="toggleNoteView()" title="تغيير العرض"><i class="fas fa-th-large"></i></button>
-          <button class="icon-btn close-btn" onclick="toggleNotePanel()">&times;</button>
-        </div>
-      </div>
-      <div class="note-tools">
-        <div class="color-options">
-          <div class="color-opt active" style="--note-bg: #fff;" onclick="setNoteColor('white')"></div>
-          <div class="color-opt" style="--note-bg: #fef3c7;" onclick="setNoteColor('yellow')"></div>
-          <div class="color-opt" style="--note-bg: #dbeafe;" onclick="setNoteColor('blue')"></div>
-          <div class="color-opt" style="--note-bg: #d1fae5;" onclick="setNoteColor('green')"></div>
-          <div class="color-opt" style="--note-bg: #fce7f3;" onclick="setNoteColor('pink')"></div>
-        </div>
-      </div>
-    </div>
-  
-    <div class="note-panel-body">
-      <div class="note-input-container">
-        <textarea id="quickNoteInput" placeholder="اكتب فكرة سريعة..." rows="3"></textarea>
-        <div class="input-footer">
-          <span id="noteCharCount">0/500</span>
-          <button class="btn-save-note" onclick="saveQuickNote()">
-            <i class="fas fa-plus"></i> حفظ
-          </button>
-        </div>
-      </div>
-  
-      <div class="notes-filter">
-        <button class="filter-tab active" onclick="filterNotes('all')">الكل</button>
-        <button class="filter-tab" onclick="filterNotes('book')">مرتبطة بسفر</button>
-      </div>
-  
-      <div id="noteHistoryList" class="notes-list grid-view">
-        </div>
-    </div>
-  </div>
-  
   <div id="journalEditorModal" class="modal" style="display:none;">
     <div class="modal-content journal-modal-refined">
       <div class="modal-header">
@@ -768,6 +727,71 @@
         <button class="btn-primary" onclick="saveJournalEntry()">
           <i class="fas fa-save"></i> حفظ التدوينة
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Note Panel - Google Keep Style (SINGLE INSTANCE) -->
+  <div id="notePanel" class="note-panel-keep" style="display:none;">
+    <div class="note-panel-overlay" onclick="toggleNotePanel()"></div>
+    
+    <div class="note-panael-content">
+      <div class="note-panel-header">
+        <h3><i class="fas fa-sticky-note"></i> <span data-i18n="quick-notes">ملاحظات سريعة</span></h3>
+        <button class="close-btn" onclick="toggleNotePanel()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="note-panel-body">
+        <!-- New Note Input -->
+        <div class="note-create-box">
+          <div class="note-create-collapsed" id="noteCollapsed" onclick="expandNoteBox()">
+            <i class="fas fa-plus-circle"></i>
+            <span data-i18n="note-create-placeholder">اضغط هنا عشان تكتب ملاحظاتك</span>
+          </div>
+          
+          <div class="note-create-expanded" id="noteExpanded" style="display:none;">
+            <input type="text" id="noteTitle" placeholder="العنوان" data-i18n-placeholder="note-title">
+            <textarea id="quickNoteInput" placeholder="اكتب ملاحظتك..." rows="4" data-i18n-placeholder="note-content"></textarea>
+            
+            <div class="note-create-footer">
+              <div class="color-options">
+                <button class="color-btn active" data-color="white" onclick="setNoteColor('white')" style="background: #fff; border: 1px solid #e0e0e0;"></button>
+                <button class="color-btn" data-color="yellow" onclick="setNoteColor('yellow')" style="background: #fff475;"></button>
+                <button class="color-btn" data-color="green" onclick="setNoteColor('green')" style="background: #ccff90;"></button>
+                <button class="color-btn" data-color="blue" onclick="setNoteColor('blue')" style="background: #a7ffeb;"></button>
+                <button class="color-btn" data-color="pink" onclick="setNoteColor('pink')" style="background: #f8bbd0;"></button>
+                <button class="color-btn" data-color="purple" onclick="setNoteColor('purple')" style="background: #d7aefb;"></button>
+              </div>
+              <div class="note-actions">
+                <button class="btn-text" onclick="collapseNoteBox()" data-i18n="close">إغلاق</button>
+                <button class="btn-save-note" onclick="saveQuickNote()">
+                  <i class="fas fa-check"></i> <span data-i18n="save">حفظ</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes Grid -->
+        <div class="notes-section">
+          <div class="notes-header">
+            <h4 data-i18n="my-notes">ملاحظاتي</h4>
+            <div class="notes-view-toggle">
+              <button class="view-btn active" onclick="setNotesView('grid')" title="Grid View">
+                <i class="fas fa-th"></i>
+              </button>
+              <button class="view-btn" onclick="setNotesView('list')" title="List View">
+                <i class="fas fa-list"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="noteHistoryList" class="notes-grid">
+            <!-- Notes will be loaded here -->
+          </div>
+        </div>
       </div>
     </div>
   </div>
