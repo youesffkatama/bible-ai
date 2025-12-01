@@ -6,8 +6,8 @@ var url = require('url');
 var crypto = require('crypto');
 var os = require('os');
 
-// MongoDB Connection
-const { connectDB, User, Log, Notification, EmailLog, Note, Journal, BookStats } = require('./public/models');
+// MongoDB Connection// Correct line in server.js:
+const { connectDB, User, Log, Notification, EmailLog, Note, Journal, BookStats } = require('./models');
 
 var PORT = process.env.PORT || 3000;
 var API_KEY = process.env.OPENROUTER_API_KEY;
@@ -952,4 +952,5 @@ process.on('SIGINT', function() {
     console.log('✅ Server closed');
     process.exit(0);
   });
+
 });
