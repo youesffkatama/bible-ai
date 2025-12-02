@@ -571,7 +571,7 @@ var server = http.createServer(async function (req, res) {
       messages.push({ role: 'user', content: userQuery });
 
       var postData = JSON.stringify({
-        model: 'nvidia/nemotron-nano-12b-v2-vl:free',
+        model: 'mistralai/mistral-small-3.1-24b-instruct:free',
         messages: messages
       });
 
@@ -964,6 +964,7 @@ process.on('SIGINT', function() {
   });
 
 });
+
 
 
 
