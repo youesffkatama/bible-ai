@@ -571,7 +571,7 @@ var server = http.createServer(async function (req, res) {
       messages.push({ role: 'user', content: userQuery });
 
       var postData = JSON.stringify({
-        model: 'mistralai/mistral-small-3.1-24b-instruct:free',
+        model: 'meta-llama/llama-3.3-70b-instruct:free',
         messages: messages
       });
 
@@ -964,6 +964,7 @@ process.on('SIGINT', function() {
   });
 
 });
+
 
 
 
