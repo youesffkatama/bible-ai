@@ -161,7 +161,7 @@
   </div>
 
   <!-- HOME PAGE -->
-  <section id="homePage" class="page-section active">
+  <section id="homePage" class="page-section">
     <div class="hero-section">
       <div>
         <div class="hero-badge">
@@ -368,6 +368,9 @@
           <div class="chat-messages" id="chatLog"></div>
           <form class="chat-input-form" id="chatForm" onsubmit="sendMessage(event)">
             <input type="text" id="userInput" data-i18n-placeholder="ask-question" placeholder="اكتب سؤالك هنا...">
+            <button type="button" class="deep-search-btn" id="deepSearchBtn" onclick="toggleDeepSearch()" title="Deep Search Mode">
+              <i class="fas fa-brain"></i>
+            </button>
             <button type="submit" class="send-btn">
               <i class="fas fa-paper-plane"></i>
             </button>
